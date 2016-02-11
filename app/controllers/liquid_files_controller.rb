@@ -1,6 +1,7 @@
 class LiquidFilesController < ApplicationController
   def viewer
     @file_name = params[:file_name]
+    Liquid::Template.error_mode = :strict
     layout_file = File.read("../email-templates/template.liquid")
     @user_data = UserData.new(params[:first_name],
         params[:last_name], params[:openness],
@@ -29,7 +30,7 @@ class LiquidFilesController < ApplicationController
 
   ATTRIBUTE_MATCH = /({{ [a-zA-Z|'_ "]* }})/
   ATTRIBUTES = ['first_name', 'last_name', 'openness', 'conscientiousness', 'extraversion', 'agreeableness',
-    'neuroticism', 'last_behavior_created_at', 'last_behavior_display_string' ]
+    'neuroticism', 'last_behavior_created_at', 'last_behavior_display_string', 'has_personality' ]
 
   # string = "<p>{{ 'first_name' | UserAttribute }}, Congrats on your First Win!</p>"
   def replace_attribues(string)
@@ -43,7 +44,7 @@ class LiquidFilesController < ApplicationController
     string
   end
 
-  CONDITIONAL_MATCH = /(({% if|{%if){1}[a-zA-Z0-9|'_ "><]{3,}%})/
+  CONDITIONAL_MATCH = /(({% if|{%if|{% elsif|{%elsif){1}[a-zA-Z0-9\-|'_ "><]{3,}%})/
   CONDITIONAL_OPERATORS = ['==', '!=', '>', '<', '>=', '<=']
 
   # string = "{% elif 'agreeableness' | UserAttribute < 0 %}"
@@ -51,23 +52,31 @@ class LiquidFilesController < ApplicationController
   def replace_conditionals(string)
     string.gsub!('elif', 'elsif')
     string.gsub!(CONDITIONAL_MATCH) do |match|
+      is_elsif = !match.index('elsif').nil?
       tmp_attr = nil
       operator = nil
+
       ATTRIBUTES.each do |attribute|
         next unless match.include?(attribute)
         tmp_attr = attribute
       end
+
       CONDITIONAL_OPERATORS.each do |op|
         next unless match.include?(op)
         operator = op
       end
+
       if operator
         op_loc = match.index(operator)
         str_end = match.slice(op_loc..-1)
       else
         str_end = ' %}'
       end
-      match = "{%if #{tmp_attr} #{str_end}"
+      if is_elsif
+        match = "{%elsif #{tmp_attr} #{str_end}"
+      else
+        match = "{%if #{tmp_attr} #{str_end}"
+      end
       match
     end
     string

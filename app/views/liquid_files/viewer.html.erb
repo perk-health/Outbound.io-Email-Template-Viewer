@@ -37,7 +37,6 @@
 <% end %>
 <br>
 <h3><%= @file_name %></h3>
-<%= @user_data.to_h %>
 <% if @template %>
   <%= raw(@template.render(@user_data.liquid_hash)) %>
 <% end %>
