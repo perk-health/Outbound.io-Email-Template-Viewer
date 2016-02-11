@@ -1,0 +1,43 @@
+<h1>Liquid Template Viewer</h1>
+<h2>Please Select a file</h2>
+<%= form_tag liquid_viewer_path, method: 'get' do %>
+  <fieldset style='width: 400px'>
+    <%= label_tag :file_name %>
+    <%= select_tag :file_name, options_for_select([['First Win', 'first_win_email'], ['Welcome Message', 'welcome_email'], ['Long Reminder Email', 'long_reminder_email'], ['Quick Reminder Email', 'quick_reminder'], ['Personality Report', 'personality_report'], ['Habit Course Intro', 'habit-course/intro'], ['Habit Course Lesson 1', 'habit-course/Lesson-1'], ['Habit Course Lesson 2', 'habit-course/Lesson-2'], ['Habit Course Lesson 3', 'habit-course/Lesson-3'], ['Habit Course Lesson 4', 'habit-course/Lesson-4'], ['Habit Course Lesson 5', 'habit-course/Lesson-5'], ['Habit Course Lesson 6', 'habit-course/Lesson-6'], ['Generic Reminder Email', 'generic_reminder_email']], @file_name) %>
+    <br>
+    <%= label_tag :first_name %>
+    <%= text_field_tag :first_name, params[:first_name], placeholder: 'First Name' %>
+    <br>
+    <%= label_tag :last_name %>
+    <%= text_field_tag :last_name, params[:last_name], placeholder: 'Last Name' %>
+    <br>
+    <%= label_tag :openness %>
+    <%= text_field_tag :openness, params[:openness], placeholder: 'Openness' %>
+    <br>
+    <%= label_tag :conscientiousness %>
+    <%= text_field_tag :conscientiousness, params[:conscientiousness], placeholder: 'Conscientiousness' %>
+    <br>
+    <%= label_tag :extraversion %>
+    <%= text_field_tag :extraversion, params[:extraversion], placeholder: 'Extraversion' %>
+    <br>
+    <%= label_tag :agreeableness %>
+    <%= text_field_tag :agreeableness, params[:agreeableness], placeholder: 'Agreeableness' %>
+    <br>
+    <%= label_tag :neuroticism %>
+    <%= text_field_tag :neuroticism, params[:neuroticism], placeholder: 'Neuroticism' %>
+    <br>
+    <%= label_tag :last_behavior_display_string %>
+    <%= text_field_tag :last_behavior_display_string, params[:last_behavior_display_string], placeholder: 'Behavior Display' %>
+    <br>
+    <%= label_tag :last_behavior_created_at %>
+    <%= text_field_tag :last_behavior_created_at, params[:last_behavior_created_at], placeholder: 'Behavior Date', value: DateTime.now %>
+    <br>
+    <%= submit_tag 'Go!', name: nil %>
+  </fieldset>
+<% end %>
+<br>
+<h3><%= @file_name %></h3>
+<%= @user_data.to_h %>
+<% if @template %>
+  <%= raw(@template.render(@user_data.liquid_hash)) %>
+<% end %>
