@@ -1,5 +1,7 @@
 <h1>Liquid Template Viewer</h1>
-<h2>Please Select a file</h2>
+<% unless @file_name %>
+    <h2>Please Select a file</h2>
+<% end %>
 <%= form_tag liquid_viewer_path, method: 'get' do %>
   <fieldset style='width: 400px'>
     <%= label_tag :file_name %>
@@ -27,7 +29,7 @@
     <%= text_field_tag :neuroticism, params[:neuroticism], placeholder: 'Neuroticism' %>
     <br>
     <%= label_tag :last_behavior_display_string %>
-    <%= text_field_tag :last_behavior_display_string, params[:last_behavior_display_string], placeholder: 'Behavior Display' %>
+    <%= text_field_tag :last_behavior_display_string, params[:last_behavior_display_string], placeholder: 'Behavior Display', value: (params[:last_behavior_display_string] || 'Running: 0:20') %>
     <br>
     <%= label_tag :last_behavior_created_at %>
     <%= text_field_tag :last_behavior_created_at, params[:last_behavior_created_at], placeholder: 'Behavior Date', value: DateTime.now %>
@@ -36,7 +38,8 @@
   </fieldset>
 <% end %>
 <br>
-<h3><%= @file_name %></h3>
+<h1><%= @use_template %></h1>
+<center><h3><%= @file_name %></h3></center>
 <% if @template %>
   <%= raw(@template.render(@user_data.liquid_hash)) %>
 <% end %>

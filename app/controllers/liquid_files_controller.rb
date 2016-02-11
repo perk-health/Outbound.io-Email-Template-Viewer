@@ -9,6 +9,7 @@ class LiquidFilesController < ApplicationController
         params[:neuroticism], params[:last_behavior_created_at],
         params[:last_behavior_display_string]
       )
+
     if @file_name
       file = File.read("../email-templates/#{@file_name}.liquid")
       file = layout_file.gsub('{{ content }}', file)
