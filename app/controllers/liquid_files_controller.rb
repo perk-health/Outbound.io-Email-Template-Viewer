@@ -84,8 +84,8 @@ class LiquidFilesController < ApplicationController
   end
 
   DATE_MATCH = /({{[a-zA-Z|'_ "]*(DateFormat)[a-zA-Z|'_ ,"%()]*}})/
-
-  # string = "{{ 'last_behavior_created_at' | UserAttribute | DateFormat (', on %A, %b %d') , ''}}""
+  COMMA_IN_DATE_FORMAT_MATCH = /(' , ''\)|', ''\)|',''\))/
+  # string = "{{ 'last_behavior_created_at' | UserAttribute | DateFormat (', on %A, %b %d' , '')}}"
   def replace_date_filter(string)
     string.gsub!(DATE_MATCH) do |match|
       tmp_attr = nil
@@ -94,9 +94,9 @@ class LiquidFilesController < ApplicationController
         tmp_attr = attribute
       end
       index_start = match.index('(')
-      index_end = match.index(')')
+      index_end = match.index(COMMA_IN_DATE_FORMAT_MATCH)
 
-      date_string = match.slice(index_start + 1..index_end - 1)
+      date_string = match.slice(index_start + 1..index_end)
 
       match = "{{ #{tmp_attr} | date: #{date_string} }}"
     end

@@ -16,7 +16,7 @@ RSpec.describe LiquidFilesController, type: :controller do
   let(:blank_if_string) { "<p>{%if 'neuroticism' | UserAttribute %}, Congrats on your First Win!" }
   let(:blank_if_result) { "<p>{%if neuroticism  %}, Congrats on your First Win!" }
 
-  let(:date_format_string) { "<p>{{ 'last_behavior_created_at' | UserAttribute | DateFormat (', on %A, %b %d') , ''}}, Congrats on your First Win!" }
+  let(:date_format_string) { "<p>{{ 'last_behavior_created_at' | UserAttribute | DateFormat (', on %A, %b %d' , '')}}, Congrats on your First Win!" }
   let(:date_format_result) { "<p>{{ last_behavior_created_at | date: ', on %A, %b %d' }}, Congrats on your First Win!" }
 
   describe 'replace_attribues' do
