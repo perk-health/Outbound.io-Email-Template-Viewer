@@ -1,14 +1,49 @@
 class LiquidFilesController < ApplicationController
+  FILES = [
+    ['Non Coaching',[
+      ['Comment Notification', 'non-coaching/comment_notification'],
+      ['Friend Request Notification', 'non-coaching/friend_request_notification'],
+      ['Kudos Notification', 'non-coaching/kudos_notification'],
+      ['Post Notification', 'non-coaching/post_notification'],
+    ]], ['Coaching', [
+      ['Accepted Invitation', 'coaching/accept_invitation'],
+      ['1st Monday', 'coaching/1st_monday'],
+      ['5th Win', 'coaching/5th_win'],
+      ['15th Win', 'coaching/15th_win'],
+      ['25th Win', 'coaching/25th_win'],
+      ['50th Win', 'coaching/50th_win'],
+      ['70th Win', 'coaching/70th_win'],
+      ['100th Win', 'coaching/100th_win']
+    ]], ['Old Habit Course', [
+      ['Habit Course Intro', 'habit-course/intro'],
+      ['Habit Course Lesson 1', 'habit-course/Lesson-1'],
+      ['Habit Course Lesson 2', 'habit-course/Lesson-2'],
+      ['Habit Course Lesson 3', 'habit-course/Lesson-3'],
+      ['Habit Course Lesson 4', 'habit-course/Lesson-4'],
+      ['Habit Course Lesson 5', 'habit-course/Lesson-5'],
+      ['Habit Course Lesson 6', 'habit-course/Lesson-6']
+    ]], ['Archived', [
+      ['First Win', 'archive/first_win_email'],
+      ['No Win', 'archive/no_win'],
+      ['Welcome Message', 'archive/welcome_email'],
+      ['Long Reminder Email', 'archive/long_reminder_email'],
+      ['Quick Reminder Email', 'archive/quick_reminder'],
+      ['Personality Report', 'archive/personality_report'],
+      ['Reminder Email (3 Days)', 'archive/reminder_email_3d'],
+      [' Reminder Email (7 Days)', 'archive/reminder_email_7d'],
+      [' Reminder Email (7 Days - Infinite)', 'archive/reminder_email_7d'],
+      [' Reminder Email (14 Days)', 'archive/reminder_email_14d'],
+      [' Reminder Email (30 Days)', 'archive/reminder_email_30d'],
+      [' Reminder Email (60 Days)', 'archive/reminder_email_60d'],
+      [' Reminder Email (90 Days)', 'archive/reminder_email_90d']
+    ]]
+  ]
   def viewer
     @file_name = params[:file_name]
+    @files = FILES
     Liquid::Template.error_mode = :strict
     layout_file = File.read("../email-templates/template.liquid")
-    @user_data = UserData.new(params[:first_name],
-        params[:last_name], params[:openness],
-        params[:conscientiousness], params[:extraversion], params[:agreeableness],
-        params[:neuroticism], params[:last_behavior_created_at],
-        params[:last_behavior_display_string]
-      )
+    @user_data = build_user_data(params)
 
     if @file_name
       file = File.read("../email-templates/#{@file_name}.liquid")
@@ -22,6 +57,16 @@ class LiquidFilesController < ApplicationController
 
   private
 
+  def build_user_data(params)
+    user_data = UserData.new
+    ATTRIBUTES.each do |attribute|
+      val = params[attribute.to_sym]
+      next unless val
+      user_data.send("#{attribute}=", val)
+    end
+    user_data
+  end
+
   def convert_to_liquid(string)
     string = replace_attribues(string)
     string = replace_conditionals(string)
@@ -30,14 +75,13 @@ class LiquidFilesController < ApplicationController
   end
 
   ATTRIBUTE_MATCH = /({{ [a-zA-Z|'_ "]* }})/
-  ATTRIBUTES = ['first_name', 'last_name', 'openness', 'conscientiousness', 'extraversion', 'agreeableness',
-    'neuroticism', 'last_behavior_created_at', 'last_behavior_display_string', 'has_personality' ]
+  ATTRIBUTES = UserData.attributes
 
   # string = "<p>{{ 'first_name' | UserAttribute }}, Congrats on your First Win!</p>"
   def replace_attribues(string)
     string.gsub!(ATTRIBUTE_MATCH) do |match|
       ATTRIBUTES.each do |attribute|
-        next unless match.include?(attribute)
+        next unless match.include?("'#{attribute}'")
         match = "{{ #{attribute} }}"
       end
       match

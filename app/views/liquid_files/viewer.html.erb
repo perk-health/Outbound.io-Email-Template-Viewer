@@ -3,67 +3,39 @@
     <h2>Please Select a file</h2>
 <% end %>
 <%= form_tag liquid_viewer_path, method: 'get' do %>
-  <fieldset style='width: 400px'>
-    <%= label_tag :file_name %>
-    <%= select_tag :file_name, options_for_select(
-      [
-        ['First Win', 'first_win_email'],
-        ['No Win', 'no_win'],
-        ['Welcome Message', 'welcome_email'],
-        ['Long Reminder Email', 'long_reminder_email'],
-        ['Quick Reminder Email', 'quick_reminder'],
-        ['Personality Report', 'personality_report'],
-        ['Habit Course Intro', 'habit-course/intro'],
-        ['Habit Course Lesson 1', 'habit-course/Lesson-1'],
-        ['Habit Course Lesson 2', 'habit-course/Lesson-2'],
-        ['Habit Course Lesson 3', 'habit-course/Lesson-3'],
-        ['Habit Course Lesson 4', 'habit-course/Lesson-4'],
-        ['Habit Course Lesson 5', 'habit-course/Lesson-5'],
-        ['Habit Course Lesson 6', 'habit-course/Lesson-6'],
-        ['Reminder Email (3 Days)', 'reminder_email_3d'],
-        [' Reminder Email (7 Days)', 'reminder_email_7d'],
-        [' Reminder Email (7 Days - Infinite)', 'reminder_email_7d'],
-        [' Reminder Email (14 Days)', 'reminder_email_14d'],
-        [' Reminder Email (30 Days)', 'reminder_email_30d'],
-        [' Reminder Email (60 Days)', 'reminder_email_60d'],
-        [' Reminder Email (90 Days)', 'reminder_email_90d']
-      ],
-      @file_name)
-    %>
+    <fieldset style='width: 400px; display: inline-block'>
+        <%= label_tag :file_name %>
+        <%= select_tag :file_name, grouped_options_for_select(@files, @file_name) %>
+        <br>
+        <% UserData.members.each_with_index do |member, index| %>
+            <% next if member == :actor_full_name %>
+            <% if member == :last_behavior_display_string %>
+                <% value = (params[:last_behavior_display_string] || 'Running: 0:20') %>
+            <% elsif member == :last_behavior_created_at%>
+                <% value = DateTime.now %>
+            <% else %>
+                <% value = params[member] || nil %>
+            <% end %>
+
+            <%= label_tag member %>
+            <%= text_field_tag member, params[member], placeholder: member.to_s, value: value %>
+            <br>
+            <% if index == 7 %>
+                </fieldset>
+                <fieldset style='width: 400px; display: inline-block'>
+            <% end %>
+        <% end %>
+    </fieldset>
     <br>
-    <%= label_tag :first_name %>
-    <%= text_field_tag :first_name, params[:first_name], placeholder: 'First Name' %>
     <br>
-    <%= label_tag :last_name %>
-    <%= text_field_tag :last_name, params[:last_name], placeholder: 'Last Name' %>
     <br>
-    <%= label_tag :openness %>
-    <%= text_field_tag :openness, params[:openness], placeholder: 'Openness' %>
-    <br>
-    <%= label_tag :conscientiousness %>
-    <%= text_field_tag :conscientiousness, params[:conscientiousness], placeholder: 'Conscientiousness' %>
-    <br>
-    <%= label_tag :extraversion %>
-    <%= text_field_tag :extraversion, params[:extraversion], placeholder: 'Extraversion' %>
-    <br>
-    <%= label_tag :agreeableness %>
-    <%= text_field_tag :agreeableness, params[:agreeableness], placeholder: 'Agreeableness' %>
-    <br>
-    <%= label_tag :neuroticism %>
-    <%= text_field_tag :neuroticism, params[:neuroticism], placeholder: 'Neuroticism' %>
-    <br>
-    <%= label_tag :last_behavior_display_string %>
-    <%= text_field_tag :last_behavior_display_string, params[:last_behavior_display_string], placeholder: 'Behavior Display', value: (params[:last_behavior_display_string] || 'Running: 0:20') %>
-    <br>
-    <%= label_tag :last_behavior_created_at %>
-    <%= text_field_tag :last_behavior_created_at, params[:last_behavior_created_at], placeholder: 'Behavior Date', value: DateTime.now %>
-    <br>
-    <%= submit_tag 'Go!', name: nil %>
-  </fieldset>
+    <center>
+        <%= submit_tag 'Go!', name: nil, style: 'width: 200px;padding: 15px; display: inline-block' %>
+    </center>
 <% end %>
 <br>
 <h1><%= @use_template %></h1>
 <center><h3><%= @file_name %></h3></center>
 <% if @template %>
-  <%= raw(@template.render(@user_data.liquid_hash)) %>
+    <%= raw(@template.render(@user_data.liquid_hash)) %>
 <% end %>
